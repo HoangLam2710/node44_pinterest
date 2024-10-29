@@ -1,0 +1,59 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model comments {
+  comment_id String    @id @db.VarChar(36)
+  content    String    @db.Text
+  create_at  DateTime? @db.Date
+  user_id    String?   @db.VarChar(36)
+  img_id     String?   @db.VarChar(36)
+  users      users?    @relation(fields: [user_id], references: [user_id], onDelete: Cascade, onUpdate: NoAction, map: "comments_ibfk_1")
+  images     images?   @relation(fields: [img_id], references: [img_id], onDelete: Cascade, onUpdate: NoAction, map: "comments_ibfk_2")
+
+  @@index([img_id], map: "img_id")
+  @@index([user_id], map: "user_id")
+}
+
+model images {
+  img_id      String     @id @db.VarChar(36)
+  img_name    String     @db.VarChar(255)
+  url         String     @db.VarChar(255)
+  description String?    @db.Text
+  user_id     String?    @db.VarChar(36)
+  comments    comments[]
+  users       users?     @relation(fields: [user_id], references: [user_id], onDelete: Cascade, onUpdate: NoAction, map: "images_ibfk_1")
+  save_img    save_img[]
+
+  @@index([user_id], map: "user_id")
+}
+
+model save_img {
+  sid       String    @id @db.VarChar(36)
+  create_at DateTime? @db.Date
+  user_id   String?   @db.VarChar(36)
+  img_id    String?   @db.VarChar(36)
+  users     users?    @relation(fields: [user_id], references: [user_id], onDelete: Cascade, onUpdate: NoAction, map: "save_img_ibfk_1")
+  images    images?   @relation(fields: [img_id], references: [img_id], onDelete: Cascade, onUpdate: NoAction, map: "save_img_ibfk_2")
+
+  @@index([img_id], map: "img_id")
+  @@index([user_id], map: "user_id")
+}
+
+model users {
+  user_id       String     @id @db.VarChar(36)
+  email         String     @db.VarChar(255)
+  password      String     @db.VarChar(255)
+  full_name     String     @db.VarChar(50)
+  age           Int?
+  avatar        String?    @db.VarChar(255)
+  refresh_token String?    @db.VarChar(255)
+  comments      comments[]
+  images        images[]
+  save_img      save_img[]
+}
