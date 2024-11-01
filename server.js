@@ -3,6 +3,7 @@ import cors from "cors";
 import cookieParser from "cookie-parser";
 import dotenv from "dotenv";
 import rootRoutes from "./src/routers/root.router.js";
+import errorHandler from "./src/middlewares/error.middleware.js";
 
 dotenv.config();
 
@@ -22,6 +23,8 @@ app.use(express.json());
 app.use(cookieParser());
 
 app.use(rootRoutes);
+
+app.use(errorHandler);
 
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);

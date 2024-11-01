@@ -1,10 +1,9 @@
 import { z } from "zod";
-import { BAD_REQUEST } from "../constant/error_code.js";
+import catchAsync from "../../utils/catch_async.js";
 
 const Register = z.object({
   email: z
     .string({
-      invalid_type_error: "Invalid email",
       required_error: "Email is required",
     })
     .email({ message: "Invalid email format" }),
@@ -18,32 +17,23 @@ const Register = z.object({
   avatar: z.string().url().optional(),
 });
 
-const registerValidation = (req, res, next) => {
-  try {
-    Register.parse(req.body);
-    next();
-  } catch (error) {
-    return res.status(BAD_REQUEST).json({ message: error.errors[0].message });
-  }
-};
+const registerValidation = catchAsync((req, res, next) => {
+  Register.parse(req.body);
+  next();
+});
 
 const Login = z.object({
   email: z
     .string({
-      invalid_type_error: "Invalid email",
       required_error: "Email is required",
     })
     .email({ message: "Invalid email format" }),
   password: z.string({ required_error: "Password is required" }),
 });
 
-const loginValidation = (req, res, next) => {
-  try {
-    Login.parse(req.body);
-    next();
-  } catch (error) {
-    return res.status(BAD_REQUEST).json({ message: error.errors[0].message });
-  }
-};
+const loginValidation = catchAsync((req, res, next) => {
+  Login.parse(req.body);
+  next();
+});
 
 export { registerValidation, loginValidation };
