@@ -1,6 +1,8 @@
 import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
 import { UNAUTHORIZED } from "../constant/error_code.js";
+import catchAsync from "../utils/catch_async.js";
+import AppError from "../utils/app_error.js";
 
 dotenv.config();
 
@@ -31,14 +33,23 @@ const verifyToken = (token) => {
   }
 };
 
-const middlewareToken = (req, res, next) => {
-  const { token } = req.headers;
+const middlewareToken = catchAsync((req, res, next) => {
+  const { authorization } = req.headers;
+  const access_token = authorization?.split(" ")[1];
 
-  if (!verifyToken(token)) {
-    return res.status(UNAUTHORIZED).json({ message: "Unauthorized" });
+  if (!verifyToken(access_token)) {
+    return next(new AppError("Unauthorized", UNAUTHORIZED));
   }
 
   next();
+});
+
+const decodeToken = (authorization) => {
+  const token = authorization.split(" ")[1];
+  const {
+    payload: { userId },
+  } = jwt.decode(token);
+  return userId;
 };
 
-export { createAccessToken, createRefreshToken, middlewareToken };
+export { createAccessToken, createRefreshToken, middlewareToken, decodeToken };

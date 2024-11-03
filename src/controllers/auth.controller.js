@@ -1,30 +1,14 @@
 import { PrismaClient } from "@prisma/client";
 import { v4 as uuidv4 } from "uuid";
-import omit from "lodash/omit.js";
 import bcrypt from "bcrypt";
 
-import {
-  BAD_REQUEST,
-  CREATED,
-  INTERNAL_SERVER,
-  OK,
-} from "../constant/error_code.js";
+import { BAD_REQUEST, CREATED, OK } from "../constant/error_code.js";
 import { createAccessToken, createRefreshToken } from "../config/jwt.js";
 import catchAsync from "../utils/catch_async.js";
 import AppError from "../utils/app_error.js";
+import { omitUser, responseDataSuccess } from "../utils/user.js";
 
 const prisma = new PrismaClient();
-
-const omitUser = (user) => {
-  return omit(user, ["password", "refresh_token"]);
-};
-
-const responseDataSuccess = (res, statusCode, message, data) => {
-  return res.status(statusCode).json({
-    message,
-    data,
-  });
-};
 
 const register = catchAsync(async (req, res, next) => {
   const { email, password, fullName, age, avatar } = req.body;
@@ -45,6 +29,7 @@ const register = catchAsync(async (req, res, next) => {
       full_name: fullName,
       age,
       avatar,
+      user_name: email.split("@")[0],
     },
   });
 

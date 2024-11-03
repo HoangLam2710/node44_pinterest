@@ -14,7 +14,6 @@ const Register = z.object({
     .positive({ message: "Age must be greater than 0" })
     .int({ message: "Age must be an integer" })
     .optional(),
-  avatar: z.string().url().optional(),
 });
 
 const registerValidation = catchAsync((req, res, next) => {
