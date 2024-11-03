@@ -21,14 +21,15 @@ model comments {
 }
 
 model images {
-  img_id      String     @id @db.VarChar(36)
-  img_name    String     @db.VarChar(255)
-  url         String     @db.VarChar(255)
-  description String?    @db.Text
-  user_id     String?    @db.VarChar(36)
-  comments    comments[]
-  users       users?     @relation(fields: [user_id], references: [user_id], onDelete: Cascade, onUpdate: NoAction, map: "images_ibfk_1")
-  save_img    save_img[]
+  img_id             String     @id @db.VarChar(36)
+  img_name           String     @db.VarChar(255)
+  img_url            String     @db.VarChar(255)
+  description        String?    @db.Text
+  additional_website String?    @db.VarChar(255)
+  user_id            String?    @db.VarChar(36)
+  comments           comments[]
+  users              users?     @relation(fields: [user_id], references: [user_id], onDelete: Cascade, onUpdate: NoAction, map: "images_ibfk_1")
+  save_img           save_img[]
 
   @@index([user_id], map: "user_id")
 }
