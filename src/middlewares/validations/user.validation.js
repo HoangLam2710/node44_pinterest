@@ -1,7 +1,7 @@
 import { z } from "zod";
 import catchAsync from "../../utils/catch_async.js";
 
-const UpdateUser = z.object({
+const UpdateAccount = z.object({
   fullName: z.string({ required_error: "Full name is required" }),
   age: z
     .number({ invalid_type_error: "Invalid age" })
@@ -13,9 +13,9 @@ const UpdateUser = z.object({
   userName: z.string({ required_error: "User name is required" }),
 });
 
-const updateUserValidation = catchAsync((req, res, next) => {
-  UpdateUser.parse(req.body);
+const updateAccountValidation = catchAsync((req, res, next) => {
+  UpdateAccount.parse(req.body);
   next();
 });
 
-export { updateUserValidation };
+export { updateAccountValidation };

@@ -31,7 +31,7 @@ const uploadAvatar = catchAsync(async (req, res) => {
   });
 });
 
-const updateUser = catchAsync(async (req, res, next) => {
+const updateAccount = catchAsync(async (req, res, next) => {
   const { authorization } = req.headers;
   const userId = decodeToken(authorization);
   const { fullName, age, bio, website, userName } = req.body;
@@ -58,4 +58,4 @@ const updateUser = catchAsync(async (req, res, next) => {
   responseDataSuccess(res, OK, "Update user successfully", omitUser(userNew));
 });
 
-export { uploadAvatar, updateUser };
+export { uploadAvatar, updateAccount };
