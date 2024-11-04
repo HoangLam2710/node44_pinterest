@@ -7,6 +7,31 @@ import { OK } from "../constant/error_code.js";
 
 const prisma = new PrismaClient();
 
+const getPosts = catchAsync(async (req, res, next) => {
+  const posts = await prisma.images.findMany({
+    include: {
+      users: {
+        select: {
+          user_name: true,
+          full_name: true,
+          avatar: true,
+        },
+      },
+    },
+  });
+
+  const postsWithAlias = posts.map((post) => ({
+    ...post,
+    user: post.users,
+    users: undefined, // Remove the original users field
+  }));
+
+  return res.status(OK).json({
+    message: "Get posts successfully!",
+    data: postsWithAlias,
+  });
+});
+
 const uploadImage = catchAsync(async (req, res, next) => {
   const { path: imagePath } = req.file;
 
@@ -45,4 +70,4 @@ const createPost = catchAsync(async (req, res, next) => {
   });
 });
 
-export { uploadImage, createPost };
+export { getPosts, uploadImage, createPost };
