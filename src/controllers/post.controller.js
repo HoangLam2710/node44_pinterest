@@ -3,7 +3,8 @@ import { v4 as uuidv4 } from "uuid";
 
 import { decodeToken } from "../config/jwt.js";
 import catchAsync from "../utils/catch_async.js";
-import { OK } from "../constant/error_code.js";
+import { NOT_FOUND, OK } from "../constant/error_code.js";
+import AppError from "../utils/app_error.js";
 
 const prisma = new PrismaClient();
 
@@ -49,6 +50,37 @@ const searchPosts = catchAsync(async (req, res, next) => {
   });
 });
 
+const getDetailPost = catchAsync(async (req, res, next) => {
+  const { img_id } = req.params;
+
+  const checkPost = await prisma.images.findUnique({
+    where: { img_id },
+    include: {
+      users: {
+        select: {
+          user_name: true,
+          full_name: true,
+          avatar: true,
+        },
+      },
+    },
+  });
+  if (!checkPost) {
+    return next(new AppError("Post not found", NOT_FOUND));
+  }
+
+  const postsWithAlias = {
+    ...checkPost,
+    user: checkPost.users,
+    users: undefined, // Remove the original users field
+  };
+
+  return res.status(OK).json({
+    message: "Get post detail successfully!",
+    data: postsWithAlias,
+  });
+});
+
 const uploadImage = catchAsync(async (req, res, next) => {
   const { path: imagePath } = req.file;
 
@@ -87,4 +119,4 @@ const createPost = catchAsync(async (req, res, next) => {
   });
 });
 
-export { getPosts, searchPosts, uploadImage, createPost };
+export { getPosts, searchPosts, getDetailPost, uploadImage, createPost };
