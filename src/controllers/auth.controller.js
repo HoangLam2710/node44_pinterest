@@ -6,7 +6,7 @@ import { BAD_REQUEST, CREATED, OK } from "../constant/error_code.js";
 import { createAccessToken, createRefreshToken } from "../config/jwt.js";
 import catchAsync from "../utils/catch_async.js";
 import AppError from "../utils/app_error.js";
-import { omitUser, responseDataSuccess } from "../utils/user.js";
+import { omitUser } from "../utils/user.js";
 
 const prisma = new PrismaClient();
 
@@ -33,7 +33,10 @@ const register = catchAsync(async (req, res, next) => {
     },
   });
 
-  responseDataSuccess(res, CREATED, "Register succesfully", omitUser(userNew));
+  return res.status(CREATED).json({
+    message: "Register successfully",
+    data: omitUser(userNew),
+  });
 });
 
 const login = catchAsync(async (req, res, next) => {
@@ -67,9 +70,12 @@ const login = catchAsync(async (req, res, next) => {
     maxAge: 7 * 24 * 60 * 60 * 1000,
   });
 
-  responseDataSuccess(res, OK, "Login succesfully", {
-    ...omitUser(user),
-    token: accessToken,
+  return res.status(OK).json({
+    message: "Login successfully",
+    data: {
+      ...omitUser(user),
+      token: accessToken,
+    },
   });
 });
 
@@ -89,9 +95,13 @@ const extendToken = catchAsync(async (req, res, next) => {
   const accessToken = createAccessToken({
     userId: checkUser.user_id,
   });
-  responseDataSuccess(res, OK, "Token extended", {
-    ...omitUser(checkUser),
-    token: accessToken,
+
+  return res.status(OK).json({
+    message: "Token extended",
+    data: {
+      ...omitUser(checkUser),
+      token: accessToken,
+    },
   });
 });
 
