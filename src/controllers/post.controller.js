@@ -8,7 +8,11 @@ import { OK } from "../constant/error_code.js";
 const prisma = new PrismaClient();
 
 const getPosts = catchAsync(async (req, res, next) => {
+  const { page = 1, perPage = 1000 } = req.query;
+
   const posts = await prisma.images.findMany({
+    skip: (Number(page) - 1) * Number(perPage),
+    take: Number(perPage),
     include: {
       users: {
         select: {

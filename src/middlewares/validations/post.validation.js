@@ -1,6 +1,44 @@
 import { z } from "zod";
 import catchAsync from "../../utils/catch_async.js";
 
+const GetPosts = z.object({
+  page: z
+    .string()
+    .optional()
+    .refine(
+      (value) => {
+        if (value) {
+          const numberValue = Number(value);
+          return !isNaN(numberValue) && numberValue > 0;
+        }
+        return true;
+      },
+      {
+        message: "Page must be a number greater than 0",
+      },
+    ),
+  perPage: z
+    .string()
+    .optional()
+    .refine(
+      (value) => {
+        if (value) {
+          const numberValue = Number(value);
+          return !isNaN(numberValue) && numberValue > 0;
+        }
+        return true;
+      },
+      {
+        message: "Per page must be a number greater than 0",
+      },
+    ),
+});
+
+const getPostsValidation = catchAsync((req, res, next) => {
+  GetPosts.parse(req.query);
+  next();
+});
+
 const CreatePost = z.object({
   imageUrl: z.string({ required_error: "Image url is required" }).url(),
   imageName: z.string({ required_error: "Image name is required" }),
@@ -13,4 +51,4 @@ const createPostValidation = catchAsync((req, res, next) => {
   next();
 });
 
-export { createPostValidation };
+export { getPostsValidation, createPostValidation };
