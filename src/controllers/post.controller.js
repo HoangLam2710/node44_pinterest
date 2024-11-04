@@ -32,6 +32,19 @@ const getPosts = catchAsync(async (req, res, next) => {
   });
 });
 
+const searchPosts = catchAsync(async (req, res, next) => {
+  const { keyword } = req.query;
+
+  const posts = await prisma.images.findMany({
+    where: { img_name: { contains: keyword } },
+  });
+
+  return res.status(OK).json({
+    message: "Search posts successfully!",
+    data: posts,
+  });
+});
+
 const uploadImage = catchAsync(async (req, res, next) => {
   const { path: imagePath } = req.file;
 
@@ -70,4 +83,4 @@ const createPost = catchAsync(async (req, res, next) => {
   });
 });
 
-export { getPosts, uploadImage, createPost };
+export { getPosts, searchPosts, uploadImage, createPost };

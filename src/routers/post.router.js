@@ -1,6 +1,7 @@
 import express from "express";
 import {
   getPosts,
+  searchPosts,
   createPost,
   uploadImage,
 } from "../controllers/post.controller.js";
@@ -11,6 +12,7 @@ import uploadCloud from "../config/upload_cloud.js";
 const postRoutes = express.Router();
 
 postRoutes.get("/", getPosts);
+postRoutes.get("/search", searchPosts);
 postRoutes.post(
   "/upload-image",
   middlewareToken,
