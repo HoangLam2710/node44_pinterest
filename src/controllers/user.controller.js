@@ -79,4 +79,37 @@ const updateAccount = catchAsync(async (req, res, next) => {
   });
 });
 
-export { getUser, uploadAvatar, updateAccount };
+const getPostCreated = catchAsync(async (req, res, next) => {
+  const { authorization } = req.headers;
+  const uid = decodeToken(authorization);
+
+  const posts = await prisma.posts.findMany({
+    where: { uid },
+  });
+
+  return res.status(OK).json({
+    message: "Get post created successfully",
+    data: posts,
+  });
+});
+
+const getPostSaved = catchAsync(async (req, res, next) => {
+  const { authorization } = req.headers;
+  const uid = decodeToken(authorization);
+
+  const posts = await prisma.save_post.findMany({
+    where: { uid },
+    include: {
+      posts: true,
+    },
+  });
+
+  const data = posts.map((post) => post.posts);
+
+  return res.status(OK).json({
+    message: "Get post saved successfully",
+    data,
+  });
+});
+
+export { getUser, uploadAvatar, updateAccount, getPostCreated, getPostSaved };

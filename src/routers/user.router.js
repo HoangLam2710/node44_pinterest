@@ -3,6 +3,8 @@ import {
   uploadAvatar,
   updateAccount,
   getUser,
+  getPostCreated,
+  getPostSaved,
 } from "../controllers/user.controller.js";
 import { middlewareToken } from "../config/jwt.js";
 import { updateAccountValidation } from "../middlewares/validations/user.validation.js";
@@ -18,5 +20,7 @@ userRoutes.post(
 );
 userRoutes.put("/", middlewareToken, updateAccountValidation, updateAccount);
 userRoutes.get("/", middlewareToken, getUser);
+userRoutes.get("/get-post-created", middlewareToken, getPostCreated);
+userRoutes.get("/get-post-saved", middlewareToken, getPostSaved);
 
 export default userRoutes;
