@@ -13,7 +13,7 @@ const prisma = new PrismaClient();
 const register = catchAsync(async (req, res, next) => {
   const { email, password, fullName, age, avatar } = req.body;
 
-  const userExist = await prisma.users.findUnique({
+  const userExist = await prisma.users.findFirst({
     where: { email },
   });
 
@@ -42,11 +42,11 @@ const register = catchAsync(async (req, res, next) => {
 const login = catchAsync(async (req, res, next) => {
   const { email, password } = req.body;
 
-  const user = await prisma.users.findUnique({
+  const user = await prisma.users.findFirst({
     where: { email },
   });
   if (!user) {
-    return next(new AppError("User not found", BAD_REQUEST));
+    return next(new AppError("Email not found", BAD_REQUEST));
   }
 
   const isMatch = bcrypt.compareSync(password, user.password);
@@ -85,7 +85,7 @@ const extendToken = catchAsync(async (req, res, next) => {
     return next(new AppError("Token not found", UNAUTHORIZED));
   }
 
-  const checkUser = await prisma.users.findUnique({
+  const checkUser = await prisma.users.findFirst({
     where: { refresh_token: refreshToken },
   });
   if (!checkUser) {
