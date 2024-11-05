@@ -8,10 +8,48 @@ import AppError from "../utils/app_error.js";
 
 const prisma = new PrismaClient();
 
+const uploadImage = catchAsync(async (req, res, next) => {
+  const { path: imagePath } = req.file;
+
+  return res.status(OK).json({
+    message: "Upload image successfully!",
+    data: { path: imagePath },
+  });
+});
+
+const createPost = catchAsync(async (req, res, next) => {
+  const { authorization } = req.headers;
+  const uid = decodeToken(authorization);
+  const { name, imageUrl, description, additionalWebsite } = req.body;
+
+  const checkUser = await prisma.users.findUnique({
+    where: { uid },
+  });
+  if (!checkUser) {
+    return next(new AppError("User not found", NOT_FOUND));
+  }
+
+  const newPost = await prisma.posts.create({
+    data: {
+      pid: uuidv4(),
+      name,
+      img_url: imageUrl,
+      description,
+      additional_website: additionalWebsite,
+      uid,
+    },
+  });
+
+  return res.status(OK).json({
+    message: "Create post successfully!",
+    data: newPost,
+  });
+});
+
 const getPosts = catchAsync(async (req, res, next) => {
   const { page = 1, perPage = 1000 } = req.query;
 
-  const posts = await prisma.images.findMany({
+  const posts = await prisma.posts.findMany({
     skip: (Number(page) - 1) * Number(perPage),
     take: Number(perPage),
     include: {
@@ -40,8 +78,8 @@ const getPosts = catchAsync(async (req, res, next) => {
 const searchPosts = catchAsync(async (req, res, next) => {
   const { keyword } = req.query;
 
-  const posts = await prisma.images.findMany({
-    where: { img_name: { contains: keyword } },
+  const posts = await prisma.posts.findMany({
+    where: { name: { contains: keyword } },
   });
 
   return res.status(OK).json({
@@ -51,10 +89,10 @@ const searchPosts = catchAsync(async (req, res, next) => {
 });
 
 const getDetailPost = catchAsync(async (req, res, next) => {
-  const { img_id } = req.params;
+  const { pid } = req.params;
 
-  const checkPost = await prisma.images.findUnique({
-    where: { img_id },
+  const checkPost = await prisma.posts.findUnique({
+    where: { pid },
     include: {
       users: {
         select: {
@@ -81,42 +119,51 @@ const getDetailPost = catchAsync(async (req, res, next) => {
   });
 });
 
-const uploadImage = catchAsync(async (req, res, next) => {
-  const { path: imagePath } = req.file;
-
-  return res.status(OK).json({
-    message: "Upload image successfully!",
-    data: { path: imagePath },
-  });
-});
-
-const createPost = catchAsync(async (req, res, next) => {
+const savePost = catchAsync(async (req, res, next) => {
   const { authorization } = req.headers;
-  const userId = decodeToken(authorization);
-  const { imageName, imageUrl, description, additionalWebsite } = req.body;
+  const uid = decodeToken(authorization);
+  const { pid } = req.params;
 
-  const checkUser = await prisma.users.findFirst({
-    where: { user_id: userId },
+  const checkUser = await prisma.users.findUnique({
+    where: { uid },
   });
   if (!checkUser) {
     return next(new AppError("User not found", NOT_FOUND));
   }
 
-  const newPost = await prisma.images.create({
-    data: {
-      img_id: uuidv4(),
-      img_name: imageName,
-      img_url: imageUrl,
-      description,
-      additional_website: additionalWebsite,
-      user_id: userId,
-    },
+  const checkPost = await prisma.posts.findUnique({
+    where: { pid },
+  });
+  if (!checkPost) {
+    return next(new AppError("Image not found", NOT_FOUND));
+  }
+
+  const checkSavePost = await prisma.save_post.findFirst({
+    where: { uid, pid },
   });
 
-  return res.status(OK).json({
-    message: "Create post successfully!",
-    data: newPost,
-  });
+  if (checkSavePost) {
+    await prisma.save_post.delete({
+      where: { uid_pid: { uid, pid } },
+    });
+    return res.status(OK).json({
+      message: "Unsave post successfully!",
+    });
+  } else {
+    await prisma.save_post.create({
+      data: { create_at: new Date(), uid, pid },
+    });
+    return res.status(OK).json({
+      message: "Save post successfully!",
+    });
+  }
 });
 
-export { getPosts, searchPosts, getDetailPost, uploadImage, createPost };
+export {
+  uploadImage,
+  createPost,
+  getPosts,
+  searchPosts,
+  getDetailPost,
+  savePost,
+};

@@ -1,8 +1,8 @@
 import express from "express";
 import {
-  extendToken,
   login,
   register,
+  extendToken,
 } from "../controllers/auth.controller.js";
 import {
   loginValidation,

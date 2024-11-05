@@ -1,6 +1,18 @@
 import { z } from "zod";
 import catchAsync from "../../utils/catch_async.js";
 
+const CreatePost = z.object({
+  name: z.string({ required_error: "Image name is required" }),
+  imageUrl: z.string({ required_error: "Image url is required" }).url(),
+  description: z.string().optional(),
+  additionalWebsite: z.string().url().optional(),
+});
+
+const createPostValidation = catchAsync((req, res, next) => {
+  CreatePost.parse(req.body);
+  next();
+});
+
 const GetPosts = z.object({
   page: z
     .string()
@@ -39,16 +51,4 @@ const getPostsValidation = catchAsync((req, res, next) => {
   next();
 });
 
-const CreatePost = z.object({
-  imageUrl: z.string({ required_error: "Image url is required" }).url(),
-  imageName: z.string({ required_error: "Image name is required" }),
-  description: z.string().optional(),
-  additionalWebsite: z.string().url().optional(),
-});
-
-const createPostValidation = catchAsync((req, res, next) => {
-  CreatePost.parse(req.body);
-  next();
-});
-
-export { getPostsValidation, createPostValidation };
+export { createPostValidation, getPostsValidation };

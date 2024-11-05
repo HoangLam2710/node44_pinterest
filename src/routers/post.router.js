@@ -1,10 +1,11 @@
 import express from "express";
 import {
+  uploadImage,
+  createPost,
   getPosts,
   searchPosts,
   getDetailPost,
-  createPost,
-  uploadImage,
+  savePost,
 } from "../controllers/post.controller.js";
 import { middlewareToken } from "../config/jwt.js";
 import {
@@ -15,20 +16,16 @@ import uploadCloud from "../config/upload_cloud.js";
 
 const postRoutes = express.Router();
 
-postRoutes.get("/", getPostsValidation, getPosts);
-postRoutes.get("/search", searchPosts);
-postRoutes.get("/:img_id", getDetailPost);
 postRoutes.post(
   "/upload-image",
   middlewareToken,
   uploadCloud("images").single("image"),
   uploadImage,
 );
-postRoutes.post(
-  "/create-post",
-  middlewareToken,
-  createPostValidation,
-  createPost,
-);
+postRoutes.post("/", middlewareToken, createPostValidation, createPost);
+postRoutes.get("/", getPostsValidation, getPosts);
+postRoutes.get("/search", searchPosts);
+postRoutes.get("/:pid", getDetailPost);
+postRoutes.post("/:pid/save-post", middlewareToken, savePost);
 
 export default postRoutes;

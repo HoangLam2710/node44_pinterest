@@ -11,7 +11,7 @@ import { omitUser } from "../utils/user.js";
 const prisma = new PrismaClient();
 
 const register = catchAsync(async (req, res, next) => {
-  const { email, password, fullName, age, avatar } = req.body;
+  const { email, password, fullName, age } = req.body;
 
   const userExist = await prisma.users.findFirst({
     where: { email },
@@ -23,12 +23,11 @@ const register = catchAsync(async (req, res, next) => {
 
   const userNew = await prisma.users.create({
     data: {
-      user_id: uuidv4(),
+      uid: uuidv4(),
       email,
       password: bcrypt.hashSync(password, 10),
       full_name: fullName,
       age,
-      avatar,
       user_name: email.split("@")[0],
     },
   });
@@ -54,10 +53,10 @@ const login = catchAsync(async (req, res, next) => {
     return next(new AppError("Incorrect password", BAD_REQUEST));
   }
 
-  const accessToken = createAccessToken({ userId: user.user_id });
-  const refreshToken = createRefreshToken({ userId: user.user_id });
+  const accessToken = createAccessToken({ uid: user.uid });
+  const refreshToken = createRefreshToken({ uid: user.uid });
   await prisma.users.update({
-    where: { user_id: user.user_id },
+    where: { uid: user.uid },
     data: {
       refresh_token: refreshToken,
     },
@@ -93,7 +92,7 @@ const extendToken = catchAsync(async (req, res, next) => {
   }
 
   const accessToken = createAccessToken({
-    userId: checkUser.user_id,
+    uid: checkUser.uid,
   });
 
   return res.status(OK).json({

@@ -47,9 +47,9 @@ const middlewareToken = catchAsync((req, res, next) => {
 const decodeToken = (authorization) => {
   const token = authorization.split(" ")[1];
   const {
-    payload: { userId },
+    payload: { uid },
   } = jwt.decode(token);
-  return userId;
+  return uid;
 };
 
 export { createAccessToken, createRefreshToken, middlewareToken, decodeToken };

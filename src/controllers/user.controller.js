@@ -9,10 +9,10 @@ const prisma = new PrismaClient();
 
 const getUser = catchAsync(async (req, res, next) => {
   const { authorization } = req.headers;
-  const userId = decodeToken(authorization);
+  const uid = decodeToken(authorization);
 
   const checkUser = await prisma.users.findUnique({
-    where: { user_id: userId },
+    where: { uid },
   });
   if (!checkUser) {
     return next(new AppError("User not found", NOT_FOUND));
@@ -26,18 +26,18 @@ const getUser = catchAsync(async (req, res, next) => {
 
 const uploadAvatar = catchAsync(async (req, res, next) => {
   const { authorization } = req.headers;
-  const userId = decodeToken(authorization);
+  const uid = decodeToken(authorization);
   const { path: avatarPath } = req.file;
 
   const checkUser = await prisma.users.findUnique({
-    where: { user_id: userId },
+    where: { uid },
   });
   if (!checkUser) {
     return next(new AppError("User not found", NOT_FOUND));
   }
 
   await prisma.users.update({
-    where: { user_id: userId },
+    where: { uid },
     data: {
       avatar: avatarPath,
     },
@@ -51,11 +51,11 @@ const uploadAvatar = catchAsync(async (req, res, next) => {
 
 const updateAccount = catchAsync(async (req, res, next) => {
   const { authorization } = req.headers;
-  const userId = decodeToken(authorization);
+  const uid = decodeToken(authorization);
   const { fullName, age, bio, website, userName } = req.body;
 
   const checkUser = await prisma.users.findUnique({
-    where: { user_id: userId },
+    where: { uid },
   });
 
   if (!checkUser) {
@@ -63,7 +63,7 @@ const updateAccount = catchAsync(async (req, res, next) => {
   }
 
   const userNew = await prisma.users.update({
-    where: { user_id: userId },
+    where: { uid },
     data: {
       full_name: fullName,
       age,
