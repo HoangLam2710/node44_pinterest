@@ -13,7 +13,7 @@ const prisma = new PrismaClient();
 const register = catchAsync(async (req, res, next) => {
   const { email, password, fullName, age, avatar } = req.body;
 
-  const userExist = await prisma.users.findFirst({
+  const userExist = await prisma.users.findUnique({
     where: { email },
   });
 
@@ -42,7 +42,7 @@ const register = catchAsync(async (req, res, next) => {
 const login = catchAsync(async (req, res, next) => {
   const { email, password } = req.body;
 
-  const user = await prisma.users.findFirst({
+  const user = await prisma.users.findUnique({
     where: { email },
   });
   if (!user) {
@@ -85,7 +85,7 @@ const extendToken = catchAsync(async (req, res, next) => {
     return next(new AppError("Token not found", UNAUTHORIZED));
   }
 
-  const checkUser = await prisma.users.findFirst({
+  const checkUser = await prisma.users.findUnique({
     where: { refresh_token: refreshToken },
   });
   if (!checkUser) {

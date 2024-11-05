@@ -11,7 +11,7 @@ const getUser = catchAsync(async (req, res, next) => {
   const { authorization } = req.headers;
   const userId = decodeToken(authorization);
 
-  const checkUser = await prisma.users.findFirst({
+  const checkUser = await prisma.users.findUnique({
     where: { user_id: userId },
   });
   if (!checkUser) {
@@ -29,7 +29,7 @@ const uploadAvatar = catchAsync(async (req, res, next) => {
   const userId = decodeToken(authorization);
   const { path: avatarPath } = req.file;
 
-  const checkUser = await prisma.users.findFirst({
+  const checkUser = await prisma.users.findUnique({
     where: { user_id: userId },
   });
   if (!checkUser) {
@@ -54,7 +54,7 @@ const updateAccount = catchAsync(async (req, res, next) => {
   const userId = decodeToken(authorization);
   const { fullName, age, bio, website, userName } = req.body;
 
-  const checkUser = await prisma.users.findFirst({
+  const checkUser = await prisma.users.findUnique({
     where: { user_id: userId },
   });
 
