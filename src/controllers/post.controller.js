@@ -119,7 +119,7 @@ const getDetailPost = catchAsync(async (req, res, next) => {
   });
 });
 
-const savePost = catchAsync(async (req, res, next) => {
+const createSavePost = catchAsync(async (req, res, next) => {
   const { authorization } = req.headers;
   const uid = decodeToken(authorization);
   const { pid } = req.params;
@@ -159,11 +159,32 @@ const savePost = catchAsync(async (req, res, next) => {
   }
 });
 
+const getSavePost = catchAsync(async (req, res, next) => {
+  const { authorization } = req.headers;
+  const uid = decodeToken(authorization);
+  const { pid } = req.params;
+
+  const checkSavePost = await prisma.save_post.findFirst({
+    where: { uid, pid },
+  });
+  if (!checkSavePost) {
+    return res.status(OK).json({
+      message: "Post is not saved!",
+      data: null,
+    });
+  }
+  return res.status(OK).json({
+    message: "Post is saved!",
+    data: checkSavePost,
+  });
+});
+
 export {
   uploadImage,
   createPost,
   getPosts,
   searchPosts,
   getDetailPost,
-  savePost,
+  createSavePost,
+  getSavePost,
 };

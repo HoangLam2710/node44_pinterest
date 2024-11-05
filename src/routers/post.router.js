@@ -5,7 +5,8 @@ import {
   getPosts,
   searchPosts,
   getDetailPost,
-  savePost,
+  createSavePost,
+  getSavePost,
 } from "../controllers/post.controller.js";
 import { middlewareToken } from "../config/jwt.js";
 import {
@@ -26,6 +27,7 @@ postRoutes.post("/", middlewareToken, createPostValidation, createPost);
 postRoutes.get("/", getPostsValidation, getPosts);
 postRoutes.get("/search", searchPosts);
 postRoutes.get("/:pid", getDetailPost);
-postRoutes.post("/:pid/save-post", middlewareToken, savePost);
+postRoutes.post("/:pid/save-post", middlewareToken, createSavePost);
+postRoutes.get("/:pid/save-post", middlewareToken, getSavePost);
 
 export default postRoutes;
