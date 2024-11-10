@@ -117,7 +117,7 @@ const getDetailPost = catchAsync(async (req, res, next) => {
   });
 });
 
-const createSavePost = catchAsync(async (req, res, next) => {
+const savePost = catchAsync(async (req, res, next) => {
   const { uid } = req.body;
   const { pid } = req.params;
 
@@ -156,7 +156,7 @@ const createSavePost = catchAsync(async (req, res, next) => {
   }
 });
 
-const getSavePost = catchAsync(async (req, res, next) => {
+const getPostSaved = catchAsync(async (req, res, next) => {
   const { uid } = req.body;
   const { pid } = req.params;
 
@@ -224,7 +224,7 @@ export {
   getPosts,
   searchPosts,
   getDetailPost,
-  createSavePost,
-  getSavePost,
+  savePost,
+  getPostSaved,
   removePost,
 };
