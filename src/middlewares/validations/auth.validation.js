@@ -35,4 +35,37 @@ const loginValidation = catchAsync((req, res, next) => {
   next();
 });
 
-export { registerValidation, loginValidation };
+const ForgotPassword = z.object({
+  email: z
+    .string({
+      required_error: "Email is required",
+    })
+    .email({ message: "Invalid email format" }),
+});
+
+const forgotPasswordValidation = catchAsync((req, res, next) => {
+  ForgotPassword.parse(req.body);
+  next();
+});
+
+const ResetPassword = z.object({
+  code: z.string({ required_error: "Code is required" }),
+  email: z
+    .string({
+      required_error: "Email is required",
+    })
+    .email({ message: "Invalid email format" }),
+  password: z.string({ required_error: "Password is required" }),
+});
+
+const resetPasswordValidation = catchAsync((req, res, next) => {
+  ResetPassword.parse(req.body);
+  next();
+});
+
+export {
+  registerValidation,
+  loginValidation,
+  forgotPasswordValidation,
+  resetPasswordValidation,
+};

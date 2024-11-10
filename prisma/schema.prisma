@@ -21,19 +21,20 @@ model comments {
 }
 
 model users {
-  uid           String      @id @db.VarChar(36)
-  email         String      @db.VarChar(255)
-  password      String      @db.VarChar(255)
-  full_name     String      @db.VarChar(50)
-  age           Int?
-  avatar        String?     @db.VarChar(255)
-  bio           String?     @db.Text
-  website       String?     @db.VarChar(255)
-  user_name     String?     @db.VarChar(50)
-  refresh_token String?     @db.VarChar(255)
-  comments      comments[]
-  posts         posts[]
-  save_post     save_post[]
+  uid                  String                 @id @db.VarChar(36)
+  email                String                 @db.VarChar(255)
+  password             String                 @db.VarChar(255)
+  full_name            String                 @db.VarChar(50)
+  age                  Int?
+  avatar               String?                @db.VarChar(255)
+  bio                  String?                @db.Text
+  website              String?                @db.VarChar(255)
+  user_name            String?                @db.VarChar(50)
+  refresh_token        String?                @db.VarChar(255)
+  code_forgot_password code_forgot_password[]
+  comments             comments[]
+  posts                posts[]
+  save_post            save_post[]
 }
 
 model posts {
@@ -59,4 +60,14 @@ model save_post {
 
   @@id([uid, pid])
   @@index([pid], map: "pid")
+}
+
+model code_forgot_password {
+  coid      String   @id @db.VarChar(36)
+  code      String   @db.VarChar(6)
+  expire_at DateTime @db.DateTime(0)
+  uid       String?  @db.VarChar(36)
+  users     users?   @relation(fields: [uid], references: [uid], onDelete: Cascade, onUpdate: NoAction, map: "code_forgot_password_ibfk_1")
+
+  @@index([uid], map: "uid")
 }

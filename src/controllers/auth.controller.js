@@ -1,12 +1,22 @@
 import { PrismaClient } from "@prisma/client";
 import { v4 as uuidv4 } from "uuid";
 import bcrypt from "bcrypt";
+import crypto from "crypto";
 
-import { BAD_REQUEST, CREATED, OK } from "../constant/error_code.js";
+import {
+  BAD_REQUEST,
+  CREATED,
+  INTERNAL_SERVER,
+  OK,
+} from "../constant/error_code.js";
 import { createAccessToken, createRefreshToken } from "../config/jwt.js";
 import catchAsync from "../utils/catch_async.js";
 import AppError from "../utils/app_error.js";
 import { omitUser } from "../utils/user.js";
+import {
+  createMailForgotPassword,
+  transporter,
+} from "../config/transporter.js";
 
 const prisma = new PrismaClient();
 
@@ -104,4 +114,85 @@ const extendToken = catchAsync(async (req, res, next) => {
   });
 });
 
-export { register, login, extendToken };
+const generateRandomString = () => {
+  let randomString = "";
+  for (let i = 0; i < 6; i++) {
+    randomString += crypto.randomInt(0, 9).toString();
+  }
+  return randomString;
+};
+
+const forgotPassword = catchAsync(async (req, res, next) => {
+  const { email } = req.body;
+
+  const user = await prisma.users.findFirst({
+    where: { email },
+  });
+  if (!user) {
+    return next(new AppError("Email not found", BAD_REQUEST));
+  }
+
+  const randomCode = generateRandomString();
+  const expire_at = new Date(Date.now() + 3 * 60 * 1000); // 3 minutes
+
+  await prisma.code_forgot_password.create({
+    data: {
+      coid: uuidv4(),
+      code: randomCode,
+      expire_at,
+      uid: user.uid,
+    },
+  });
+
+  // config info mail
+  const mailOptions = createMailForgotPassword(email, randomCode);
+  // send mail
+  transporter.sendMail(mailOptions, (error, info) => {
+    if (error) {
+      return next(new AppError("Send mail failed", INTERNAL_SERVER));
+    }
+    return res.status(OK).json({
+      message: "Send mail successfully",
+    });
+  });
+});
+
+const resetPassword = catchAsync(async (req, res, next) => {
+  const { email, code, password } = req.body;
+
+  const user = await prisma.users.findFirst({
+    where: { email },
+  });
+  if (!user) {
+    return next(new AppError("Email not found", BAD_REQUEST));
+  }
+
+  const checkCode = await prisma.code_forgot_password.findFirst({
+    where: { code, uid: user.uid },
+  });
+  if (!checkCode) {
+    return next(new AppError("Code is invalid", BAD_REQUEST));
+  }
+
+  const now = new Date();
+  if (now > checkCode.expire_at) {
+    return next(new AppError("Code is expired", BAD_REQUEST));
+  }
+
+  await prisma.users.update({
+    where: { uid: user.uid },
+    data: {
+      password: bcrypt.hashSync(password, 10),
+    },
+  });
+
+  await prisma.code_forgot_password.delete({
+    where: { coid: checkCode.coid },
+  });
+
+  return res.status(OK).json({
+    message: "Reset password successfully",
+  });
+});
+
+export { register, login, extendToken, forgotPassword, resetPassword };
