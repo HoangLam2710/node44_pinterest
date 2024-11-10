@@ -2,7 +2,7 @@ import { PrismaClient } from "@prisma/client";
 import { v4 as uuidv4 } from "uuid";
 
 import catchAsync from "../utils/catch_async.js";
-import { NOT_FOUND, OK } from "../constant/error_code.js";
+import { CREATED, NOT_FOUND, OK } from "../constant/error_code.js";
 import AppError from "../utils/app_error.js";
 
 const prisma = new PrismaClient();
@@ -37,7 +37,7 @@ const createPost = catchAsync(async (req, res, next) => {
     },
   });
 
-  return res.status(OK).json({
+  return res.status(CREATED).json({
     message: "Create post successfully!",
     data: newPost,
   });
@@ -149,7 +149,7 @@ const createSavePost = catchAsync(async (req, res, next) => {
     await prisma.save_post.create({
       data: { create_at: new Date(), uid, pid },
     });
-    return res.status(OK).json({
+    return res.status(CREATED).json({
       message: "Save post successfully!",
     });
   }
