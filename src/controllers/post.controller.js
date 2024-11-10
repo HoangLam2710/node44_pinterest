@@ -1,7 +1,6 @@
 import { PrismaClient } from "@prisma/client";
 import { v4 as uuidv4 } from "uuid";
 
-import { decodeToken } from "../config/jwt.js";
 import catchAsync from "../utils/catch_async.js";
 import { NOT_FOUND, OK } from "../constant/error_code.js";
 import AppError from "../utils/app_error.js";
@@ -18,9 +17,7 @@ const uploadImage = catchAsync(async (req, res, next) => {
 });
 
 const createPost = catchAsync(async (req, res, next) => {
-  const { authorization } = req.headers;
-  const uid = decodeToken(authorization);
-  const { name, imageUrl, description, additionalWebsite } = req.body;
+  const { uid, name, imageUrl, description, additionalWebsite } = req.body;
 
   const checkUser = await prisma.users.findUnique({
     where: { uid },
@@ -120,8 +117,7 @@ const getDetailPost = catchAsync(async (req, res, next) => {
 });
 
 const createSavePost = catchAsync(async (req, res, next) => {
-  const { authorization } = req.headers;
-  const uid = decodeToken(authorization);
+  const { uid } = req.body;
   const { pid } = req.params;
 
   const checkUser = await prisma.users.findUnique({
@@ -160,8 +156,7 @@ const createSavePost = catchAsync(async (req, res, next) => {
 });
 
 const getSavePost = catchAsync(async (req, res, next) => {
-  const { authorization } = req.headers;
-  const uid = decodeToken(authorization);
+  const { uid } = req.body;
   const { pid } = req.params;
 
   const checkSavePost = await prisma.save_post.findFirst({

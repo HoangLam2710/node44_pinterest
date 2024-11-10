@@ -1,6 +1,5 @@
 import { PrismaClient } from "@prisma/client";
 
-import { decodeToken } from "../config/jwt.js";
 import catchAsync from "../utils/catch_async.js";
 import { omitUser } from "../utils/user.js";
 import { OK } from "../constant/error_code.js";
@@ -8,8 +7,7 @@ import { OK } from "../constant/error_code.js";
 const prisma = new PrismaClient();
 
 const getUser = catchAsync(async (req, res, next) => {
-  const { authorization } = req.headers;
-  const uid = decodeToken(authorization);
+  const { uid } = req.body;
 
   const checkUser = await prisma.users.findUnique({
     where: { uid },
@@ -25,8 +23,7 @@ const getUser = catchAsync(async (req, res, next) => {
 });
 
 const uploadAvatar = catchAsync(async (req, res, next) => {
-  const { authorization } = req.headers;
-  const uid = decodeToken(authorization);
+  const { uid } = req.body;
   const { path: avatarPath } = req.file;
 
   const checkUser = await prisma.users.findUnique({
@@ -50,9 +47,7 @@ const uploadAvatar = catchAsync(async (req, res, next) => {
 });
 
 const updateAccount = catchAsync(async (req, res, next) => {
-  const { authorization } = req.headers;
-  const uid = decodeToken(authorization);
-  const { fullName, age, bio, website, userName } = req.body;
+  const { uid, fullName, age, bio, website, userName } = req.body;
 
   const checkUser = await prisma.users.findUnique({
     where: { uid },
@@ -80,8 +75,7 @@ const updateAccount = catchAsync(async (req, res, next) => {
 });
 
 const getPostCreated = catchAsync(async (req, res, next) => {
-  const { authorization } = req.headers;
-  const uid = decodeToken(authorization);
+  const { uid } = req.body;
 
   const posts = await prisma.posts.findMany({
     where: { uid },
@@ -94,8 +88,7 @@ const getPostCreated = catchAsync(async (req, res, next) => {
 });
 
 const getPostSaved = catchAsync(async (req, res, next) => {
-  const { authorization } = req.headers;
-  const uid = decodeToken(authorization);
+  const { uid } = req.body;
 
   const posts = await prisma.save_post.findMany({
     where: { uid },
