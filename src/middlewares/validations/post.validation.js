@@ -2,7 +2,7 @@ import { z } from "zod";
 import catchAsync from "../../utils/catch_async.js";
 
 const CreatePost = z.object({
-  name: z.string({ required_error: "Image name is required" }),
+  name: z.string({ required_error: "Name is required" }),
   imageUrl: z.string({ required_error: "Image url is required" }).url(),
   description: z.string().optional(),
   additionalWebsite: z.string().url().optional(),

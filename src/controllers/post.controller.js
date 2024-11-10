@@ -131,7 +131,7 @@ const createSavePost = catchAsync(async (req, res, next) => {
     where: { pid },
   });
   if (!checkPost) {
-    return next(new AppError("Image not found", NOT_FOUND));
+    return next(new AppError("Post not found", NOT_FOUND));
   }
 
   const checkSavePost = await prisma.save_post.findFirst({
