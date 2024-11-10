@@ -7,13 +7,14 @@ import {
   getDetailPost,
   createSavePost,
   getSavePost,
+  removePost,
 } from "../controllers/post.controller.js";
 import { middlewareToken } from "../config/jwt.js";
 import {
   getPostsValidation,
   createPostValidation,
 } from "../middlewares/validations/post.validation.js";
-import uploadCloud from "../config/upload_cloud.js";
+import { uploadCloud } from "../config/upload_cloud.js";
 
 const postRoutes = express.Router();
 
@@ -26,7 +27,9 @@ postRoutes.post(
 postRoutes.post("/", middlewareToken, createPostValidation, createPost);
 postRoutes.get("/", getPostsValidation, getPosts);
 postRoutes.get("/search", searchPosts);
+
 postRoutes.get("/:pid", getDetailPost);
+postRoutes.delete("/:pid", middlewareToken, removePost);
 postRoutes.post("/:pid/save-post", middlewareToken, createSavePost);
 postRoutes.get("/:pid/save-post", middlewareToken, getSavePost);
 

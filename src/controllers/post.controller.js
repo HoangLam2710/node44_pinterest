@@ -4,6 +4,7 @@ import { v4 as uuidv4 } from "uuid";
 import catchAsync from "../utils/catch_async.js";
 import { CREATED, NOT_FOUND, OK } from "../constant/error_code.js";
 import AppError from "../utils/app_error.js";
+import { removeImageCloud } from "../config/upload_cloud.js";
 
 const prisma = new PrismaClient();
 
@@ -174,6 +175,49 @@ const getSavePost = catchAsync(async (req, res, next) => {
   });
 });
 
+const removePost = catchAsync(async (req, res, next) => {
+  const { uid } = req.body;
+  const { pid } = req.params;
+
+  const checkUser = await prisma.users.findUnique({
+    where: { uid },
+  });
+  if (!checkUser) {
+    return next(new AppError("User not found", NOT_FOUND));
+  }
+
+  const checkPost = await prisma.posts.findUnique({
+    where: { pid },
+  });
+  if (!checkPost) {
+    return next(new AppError("Post not found", NOT_FOUND));
+  }
+
+  const checkSavePost = await prisma.save_post.findFirst({
+    where: { uid, pid },
+  });
+  if (checkSavePost) {
+    await prisma.save_post.delete({
+      where: { uid_pid: { uid, pid } },
+    });
+  }
+
+  await prisma.comments.deleteMany({
+    where: { pid },
+  });
+
+  const publicId = checkPost.img_url.split("images/")[1].split(".")[0];
+  await removeImageCloud(`images/${publicId}`);
+
+  await prisma.posts.delete({
+    where: { pid },
+  });
+
+  return res.status(OK).json({
+    message: "Remove post successfully!",
+  });
+});
+
 export {
   uploadImage,
   createPost,
@@ -182,4 +226,5 @@ export {
   getDetailPost,
   createSavePost,
   getSavePost,
+  removePost,
 };

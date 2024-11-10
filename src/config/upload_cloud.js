@@ -31,4 +31,8 @@ const uploadCloud = (folder) => {
   return multer({ storage });
 };
 
-export default uploadCloud;
+const removeImageCloud = async (publicId) => {
+  await cloudinary.uploader.destroy(publicId);
+};
+
+export { uploadCloud, removeImageCloud };

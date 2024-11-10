@@ -8,7 +8,7 @@ import {
 } from "../controllers/user.controller.js";
 import { middlewareToken } from "../config/jwt.js";
 import { updateAccountValidation } from "../middlewares/validations/user.validation.js";
-import uploadCloud from "../config/upload_cloud.js";
+import { uploadCloud } from "../config/upload_cloud.js";
 
 const userRoutes = express.Router();
 
